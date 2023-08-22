@@ -26,12 +26,12 @@ export class AuthController {
   @Post("/login")
   async login(
     @Body() { name, password, keepLogin }: IUserBody,
-    @Res() { cookie }: Response,
+    @Res({ passthrough: true }) response: Response,
   ): Promise<ITokens> {
     try {
       const userData = await this.authService.login({ name, password });
       if (keepLogin) {
-        cookie("refreshToken", userData.refreshToken, {
+        response.cookie("refreshToken", userData.refreshToken, {
           maxAge: 30 * 24 * 60 * 60 * 1000,
           httpOnly: true,
         });
@@ -44,12 +44,14 @@ export class AuthController {
   }
 
   @Post("/logout")
-  async logout(@Req() { cookies }: Request, @Res() { clearCookie }: Response) {
+  async logout(
+    @Req() { cookies }: Request,
+    @Res({ passthrough: true }) response: Response,
+  ) {
     try {
       const { refreshToken } = cookies;
-
       const token = await this.authService.logout(refreshToken);
-      clearCookie("refreshToken");
+      response.clearCookie("refreshToken");
       return token;
     } catch (error) {
       return error.message;
@@ -57,13 +59,14 @@ export class AuthController {
   }
 
   @Get("/refresh")
-  async refresh(@Req() { cookies }: Request, @Res() { cookie }: Response) {
+  async refresh(
+    @Req() { cookies }: Request,
+    @Res({ passthrough: true }) response: Response,
+  ) {
     try {
       const refreshToken = cookies;
-
       const userData = await this.authService.refresh(refreshToken);
-
-      cookie("refreshToken", userData.refreshToken, {
+      response.cookie("refreshToken", userData.refreshToken, {
         maxAge: 30 * 24 * 60 * 60 * 1000,
         httpOnly: true,
       });

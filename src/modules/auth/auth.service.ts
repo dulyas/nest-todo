@@ -14,14 +14,14 @@ import {
   Injectable,
   UnauthorizedException,
 } from "@nestjs/common";
-
-const { PASSWORD_SECRET } = process.env;
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel("User") private readonly userModel: Model<IUser>,
     private tokenService: TokenService,
+    private configService: ConfigService,
   ) {}
 
   async register({
@@ -30,15 +30,17 @@ export class AuthService {
   }: IUserRequest): Promise<IUserDtoWithTokens> {
     const user = await this.userModel.findOne({ name }).lean();
 
-    console.log(PASSWORD_SECRET);
+    console.log(user);
+
+    const PASSWORD_SALT = +this.configService.get("PASSWORD_SALT");
 
     if (user) {
-      new HttpException("Name already exist", 400);
+      throw new HttpException("Name already exist", 400);
     }
 
     const accessToken = this.tokenService.generateJWTToken({ name });
     const refreshToken = await this.tokenService.generateJWTRefresh();
-    const hashPassword = await hash(password, PASSWORD_SECRET);
+    const hashPassword = await hash(password, PASSWORD_SALT);
 
     await this.userModel.collection.insertOne({
       name,
@@ -66,12 +68,12 @@ export class AuthService {
   async login({ name, password }: IUserRequest): Promise<ITokens> {
     const user = await this.userModel.findOne({ name }).lean();
     if (!user) {
-      new UnauthorizedException("No user for this login");
+      throw new UnauthorizedException("No user for this login");
     }
 
     const isPassEquals = await compare(password, user.password);
     if (!isPassEquals) {
-      new UnauthorizedException("Wrong password");
+      throw new UnauthorizedException("Wrong password");
     }
 
     const accessToken = this.tokenService.generateJWTToken({ name });

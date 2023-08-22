@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import crypto from "crypto";
+import { randomBytes } from "crypto";
 import { IUser } from "./schemas/user.schema";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
@@ -18,7 +18,7 @@ export class TokenService {
   generateJWTRefresh(): Promise<string> {
     return new Promise((resolve, reject) => {
       try {
-        crypto.randomBytes(48, (err, buffer: Buffer) => {
+        randomBytes(48, (err, buffer: Buffer) => {
           resolve(buffer.toString("hex"));
         });
       } catch (e) {

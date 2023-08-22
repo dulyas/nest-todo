@@ -9,7 +9,7 @@ import { AuthModule } from "./modules/auth/auth.module";
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: `../.${process.env.NODE_ENV || "dev"}.env`,
+      envFilePath: `.${process.env.NODE_ENV || "dev"}.env`,
     }),
     MongooseModule.forRoot(process.env.MONGODB_URL),
     AuthModule,
