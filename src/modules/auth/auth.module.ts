@@ -2,7 +2,6 @@ import { Module } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { MongooseModule } from "@nestjs/mongoose";
 import { UserSchema } from "./schemas/user.schema";
-import { PassportModule } from "@nestjs/passport";
 import { TokenService } from "./token.service";
 import { JwtModule } from "@nestjs/jwt";
 import { AuthController } from "./auth.controller";
@@ -19,8 +18,6 @@ import { AuthGuard } from "./auth.guard";
       }),
       inject: [ConfigService],
     }),
-
-    PassportModule,
     MongooseModule.forFeature([{ name: "User", schema: UserSchema }]),
   ],
   controllers: [AuthController],
