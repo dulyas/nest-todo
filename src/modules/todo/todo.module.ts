@@ -1,16 +1,16 @@
 import { Module } from "@nestjs/common";
-import { AuthService } from "./auth.service";
+
 import { MongooseModule } from "@nestjs/mongoose";
-import { UserSchema } from "./schemas/user.schema";
-import { PassportModule } from "@nestjs/passport";
-import { TokenService } from "./token.service";
+
+import { TodoSchema } from "./schemas/todo.schema";
+import { TodoController } from "./todo.controller";
+import { TodoService } from "./todo.service";
 import { JwtModule } from "@nestjs/jwt";
-import { AuthController } from "./auth.controller";
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import { AuthGuard } from "./auth.guard";
 
 @Module({
   imports: [
+    MongooseModule.forFeature([{ name: "Todo", schema: TodoSchema }]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
@@ -19,12 +19,8 @@ import { AuthGuard } from "./auth.guard";
       }),
       inject: [ConfigService],
     }),
-
-    PassportModule,
-    MongooseModule.forFeature([{ name: "User", schema: UserSchema }]),
   ],
-  controllers: [AuthController],
-  providers: [AuthService, TokenService, AuthGuard],
-  exports: [AuthGuard],
+  controllers: [TodoController],
+  providers: [TodoService],
 })
-export class AuthModule {}
+export class TodoModule {}

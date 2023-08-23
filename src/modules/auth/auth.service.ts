@@ -30,8 +30,6 @@ export class AuthService {
   }: IUserRequest): Promise<IUserDtoWithTokens> {
     const user = await this.userModel.findOne({ name }).lean();
 
-    console.log(user);
-
     const PASSWORD_SALT = +this.configService.get("PASSWORD_SALT");
 
     if (user) {
